@@ -64,8 +64,12 @@ def clean_old_output():
 def print_photos_created_stats(photosByAspectRatio):
     print ('Number of photos created:')
     aspectRatios = sorted(list(photosByAspectRatio.keys()))
+    total = 0
     for aspectRatio in aspectRatios:
-        print ('\tAspect Ratio: ' + aspectRatio, len(photosByAspectRatio[aspectRatio]))
+        numberOfPhotos = len(photosByAspectRatio[aspectRatio])
+        print ('\tAspect Ratio: ' + aspectRatio, numberOfPhotos)
+        total += numberOfPhotos
+    print ('Total number of photos: ' + str(total))
 
 def process_directory(root, photoDir):
     print ("Processing: " + os.path.join(root, photoDir))
@@ -105,8 +109,8 @@ def merge_processing_results(processingResults):
     return photosByAspectRatio
 
 def main ():
-    #directories = ['P:/Pictures/Nikon D5000 Photos/Photos/', 'P:/Pictures/Nikon D5000 Photos/Timelapses/']
-    directories = ['P:/Pictures/Python Test/Photos/', 'P:/Pictures/Python Test/Timelapses/']
+    directories = ['P:/Pictures/Nikon D5000 Photos/Photos/', 'P:/Pictures/Nikon D5000 Photos/Timelapses/']
+    #directories = ['P:/Pictures/Python Test/Photos/', 'P:/Pictures/Python Test/Timelapses/']
 
     start = time.time()
     if os.path.isdir('output'):
