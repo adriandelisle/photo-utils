@@ -1,17 +1,16 @@
 import os
 import subprocess
 import shutil
+import time
 
-directories = ['P:\Pictures\Python Test\Photos\\', 'P:\Pictures\Python Test\Timelapses\\']
-
-def is_picture (fileName):
+def is_picture(fileName):
     acceptedFileTypes = ['.jpg', '.nef']
     for fileType in acceptedFileTypes:
         if fileName.lower().endswith(fileType):
             return True
     return False
 
-def get_metadata (filePath):
+def get_metadata(filePath):
     ## http://stackoverflow.com/a/7006424
     CREATE_NO_WINDOW = 0x08000000
     DETACHED_PROCESS = 0x00000008
@@ -28,7 +27,7 @@ def get_metadata (filePath):
             metadata[keyValue[0].strip()] = keyValue[1].strip()
     return metadata
 
-def get_aspect_ratio (metadata):
+def get_aspect_ratio(metadata):
     imageSize = metadata['Image size']
     imageSize = imageSize.split('x')
     imageSize = (float(imageSize[0].strip()), float(imageSize[1].strip()))
@@ -40,50 +39,75 @@ def copy_photo(original, aspectRatio, fileName):
     print ('\tCreating file: ' + destination)
     shutil.copy(original, destination)
 
-def create_aspect_dir (aspectRatio):
+def create_aspect_dir(aspectRatio):
     dirToCreate = 'output/' + aspectRatio
-    print ('Creating directory: ' + dirToCreate)
-    os.makedirs(dirToCreate)
+    if not os.path.isdir(dirToCreate):
+        print ('Creating directory: ' + dirToCreate)
+        os.makedirs(dirToCreate)
 
-def clean_old_output ():
+def clean_old_output():
     print ('Cleaning up old output directory')
     shutil.rmtree('output')
 
-def print_photos_created_stats (photos):
+def print_photos_created_stats(photosByAspectRatio):
     print ('Number of photos created:')
-    for aspectRatio, photos in photos.items():
+    for aspectRatio, photos in photosByAspectRatio.items():
         print ('\tAspect Ratio: ' + aspectRatio, len(photos))
 
+def process_directory(root, photoDir):
+    print ("Processing: " + os.path.join(root, photoDir))
+    photosByAspectRatio = {}
+    for dirPath, dirs, files in os.walk(os.path.join(root, photoDir)):
+        if len(files) <= 0:
+            continue
+
+        if dirPath.lower().find("no watermark") != -1:
+            for file in files:
+                if is_picture(file):
+                    filePath = os.path.join(dirPath, file)
+                    metadata = get_metadata(filePath)
+                    aspectRatio = get_aspect_ratio(metadata)
+
+                    newFileName = photoDir + ' ' + file
+                    
+                    photo = (filePath, metadata, aspectRatio, newFileName)
+                    
+                    if aspectRatio in photosByAspectRatio:
+                        photosByAspectRatio[aspectRatio].append(photo)
+                    else:
+                        photosByAspectRatio[aspectRatio] = [photo]
+                        create_aspect_dir(aspectRatio)
+
+                    copy_photo(filePath, aspectRatio, newFileName)
+    return photosByAspectRatio
+
+def merge_processing_results(processingResults):
+    photosByAspectRatio = {}
+    for result in processingResults:
+        for aspect, photos in result.items():
+            if aspect in photosByAspectRatio:
+                photosByAspectRatio[aspect].extend(photos)
+            else:
+                photosByAspectRatio[aspect] = photos
+    return photosByAspectRatio
+
 def main ():
-    clean_old_output()
-    aspectRatios = {}
+    directories = ['P:/Pictures/Nikon D5000 Photos/Photos/', 'P:/Pictures/Nikon D5000 Photos/Timelapses/']
+    #directories = ['P:/Pictures/Python Test/Photos/', 'P:/Pictures/Python Test/Timelapses/']
+
+    start = time.time()
+    if os.path.isdir('output'):
+        clean_old_output()
+
+    processingResults = []
     for directoryToCheck in directories:
         for photoDir in os.listdir(directoryToCheck):
-            print ("Processing: " + os.path.join(directoryToCheck, photoDir))
-            for dirPath, dirs, files in os.walk(os.path.join(directoryToCheck, photoDir)):
-                if len(files) <= 0:
-                    continue
+            processingResults.append(process_directory(directoryToCheck, photoDir))
+    end = time.time()
 
-                if dirPath.lower().find("no watermark") != -1:
-                    for file in files:
-                        if is_picture(file):
-                            filePath = os.path.join(dirPath, file)
-                            metadata = get_metadata(filePath)
-                            aspectRatio = get_aspect_ratio(metadata)
-
-                            newFileName = photoDir + ' ' + file
-                            
-                            photo = (filePath, metadata, aspectRatio, newFileName)
-                            
-                            if aspectRatio in aspectRatios:
-                                aspectRatios[aspectRatio].append(photo)
-                            else:
-                                aspectRatios[aspectRatio] = [photo]
-                                create_aspect_dir (aspectRatio)
-
-                            copy_photo(filePath, aspectRatio, newFileName)
-
-    print_photos_created_stats(aspectRatios)
+    photosByAspectRatio = merge_processing_results(processingResults)
+    print_photos_created_stats(photosByAspectRatio)
+    print ("Time taken: " + str(end - start))
         
 if __name__ == "__main__":
     main()
