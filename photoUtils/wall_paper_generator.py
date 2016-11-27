@@ -2,6 +2,7 @@ import os
 import subprocess
 import shutil
 import time
+import random
 
 def is_picture(fileName):
     acceptedFileTypes = ['.jpg', '.nef']
@@ -36,6 +37,17 @@ def get_aspect_ratio(metadata):
 
 def copy_photo(original, aspectRatio, fileName):
     destination = 'output/' + aspectRatio + '/' + fileName
+    if os.path.isfile(destination):
+        fileNameParts = fileName.split('.')
+        destination = 'output/' + \
+                      aspectRatio + \
+                      '/' + \
+                      fileNameParts[0] + \
+                      ' ' + \
+                      str(int(time.time())) + \
+                      str(random.randrange(1, 10000)) + \
+                      '.' + \
+                      fileNameParts[1]
     print ('\tCreating file: ' + destination)
     shutil.copy(original, destination)
 
@@ -92,8 +104,8 @@ def merge_processing_results(processingResults):
     return photosByAspectRatio
 
 def main ():
-    directories = ['P:/Pictures/Nikon D5000 Photos/Photos/', 'P:/Pictures/Nikon D5000 Photos/Timelapses/']
-    #directories = ['P:/Pictures/Python Test/Photos/', 'P:/Pictures/Python Test/Timelapses/']
+    #directories = ['P:/Pictures/Nikon D5000 Photos/Photos/', 'P:/Pictures/Nikon D5000 Photos/Timelapses/']
+    directories = ['P:/Pictures/Python Test/Photos/', 'P:/Pictures/Python Test/Timelapses/']
 
     start = time.time()
     if os.path.isdir('output'):
