@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shutil
 
 directories = ['P:\Pictures\Python Test\Photos\\', 'P:\Pictures\Python Test\Timelapses\\']
 
@@ -31,36 +32,58 @@ def get_aspect_ratio (metadata):
     imageSize = metadata['Image size']
     imageSize = imageSize.split('x')
     imageSize = (float(imageSize[0].strip()), float(imageSize[1].strip()))
-    print (imageSize)
+    
     return "{:.2f}".format(imageSize[0] / imageSize[1])
 
-##metadata = get_metadata(r'P:\Pictures\Python Test\Timelapses\Abbotsford Tulip Festival 09-04-2016\Edits\Output\No watermark\DSC_0062.jpg')
-##print (get_aspect_ratio(metadata))
+def copy_photo(original, aspectRatio, fileName):
+    destination = 'output/' + aspectRatio + '/' + fileName
+    print ('\tCreating file: ' + destination)
+    shutil.copy(original, destination)
 
-aspectRatios = {}
-for directoryToCheck in directories:
-    for dir in os.listdir(directoryToCheck):
-        print (dir)
-        for dirPath, dirs, files in os.walk(os.path.join(directoryToCheck, dir)):
-            if len(files) <= 0:
-                continue
+def create_aspect_dir (aspectRatio):
+    dirToCreate = 'output/' + aspectRatio
+    print ('Creating directory: ' + dirToCreate)
+    os.makedirs(dirToCreate)
 
-            print (dirPath)
-            if dirPath.lower().find("no watermark") != -1:
-                for file in files:
-                    if is_picture(file):
-                        filePath = os.path.join(dirPath, file)
-                        metadata = get_metadata(filePath)
-                        aspectRatio = get_aspect_ratio(metadata)
-                        print (aspectRatio)
-                        if aspectRatio in aspectRatios:
-                            aspectRatios[aspectRatio].append(filePath)
-                        else:
-                            aspectRatios[aspectRatio] = [filePath]
-##                        print (filePath)
-##                        print (get_metadata(filePath))
-print (aspectRatios)
-for aspectRatio, photos in aspectRatios.items():
-    print (aspectRatio, len(photos))
-    
+def clean_old_output ():
+    print ('Cleaning up old output directory')
+    shutil.rmtree('output')
 
+def print_photos_created_stats (photos):
+    print ('Number of photos created:')
+    for aspectRatio, photos in photos.items():
+        print ('\tAspect Ratio: ' + aspectRatio, len(photos))
+
+def main ():
+    clean_old_output()
+    aspectRatios = {}
+    for directoryToCheck in directories:
+        for photoDir in os.listdir(directoryToCheck):
+            print ("Processing: " + os.path.join(directoryToCheck, photoDir))
+            for dirPath, dirs, files in os.walk(os.path.join(directoryToCheck, photoDir)):
+                if len(files) <= 0:
+                    continue
+
+                if dirPath.lower().find("no watermark") != -1:
+                    for file in files:
+                        if is_picture(file):
+                            filePath = os.path.join(dirPath, file)
+                            metadata = get_metadata(filePath)
+                            aspectRatio = get_aspect_ratio(metadata)
+
+                            newFileName = photoDir + ' ' + file
+                            
+                            photo = (filePath, metadata, aspectRatio, newFileName)
+                            
+                            if aspectRatio in aspectRatios:
+                                aspectRatios[aspectRatio].append(photo)
+                            else:
+                                aspectRatios[aspectRatio] = [photo]
+                                create_aspect_dir (aspectRatio)
+
+                            copy_photo(filePath, aspectRatio, newFileName)
+
+    print_photos_created_stats(aspectRatios)
+        
+if __name__ == "__main__":
+    main()
