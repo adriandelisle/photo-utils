@@ -3,6 +3,7 @@ import subprocess
 import shutil
 import time
 import random
+from multiprocessing import Pool
 
 def is_picture(fileName):
     acceptedFileTypes = ['.jpg', '.nef']
@@ -73,6 +74,7 @@ def print_photos_created_stats(photosByAspectRatio):
 
 def process_directory(root, photoDir):
     print ("Processing: " + os.path.join(root, photoDir))
+    
     photosByAspectRatio = {}
     for dirPath, dirs, files in os.walk(os.path.join(root, photoDir)):
         if len(files) <= 0:
@@ -118,8 +120,10 @@ def main ():
 
     processingResults = []
     for directoryToCheck in directories:
-        for photoDir in os.listdir(directoryToCheck):
-            processingResults.append(process_directory(directoryToCheck, photoDir))
+        # get the arguments for the procssing function
+        photoDirectories = list(map(lambda photoDir: (directoryToCheck, photoDir), os.listdir(directoryToCheck)))
+        with Pool(8) as p:
+            processingResults.extend(p.starmap(process_directory, photoDirectories))
     end = time.time()
 
     photosByAspectRatio = merge_processing_results(processingResults)
