@@ -63,8 +63,9 @@ def clean_old_output():
 
 def print_photos_created_stats(photosByAspectRatio):
     print ('Number of photos created:')
-    for aspectRatio, photos in photosByAspectRatio.items():
-        print ('\tAspect Ratio: ' + aspectRatio, len(photos))
+    aspectRatios = sorted(list(photosByAspectRatio.keys()))
+    for aspectRatio in aspectRatios:
+        print ('\tAspect Ratio: ' + aspectRatio, len(photosByAspectRatio[aspectRatio]))
 
 def process_directory(root, photoDir):
     print ("Processing: " + os.path.join(root, photoDir))
