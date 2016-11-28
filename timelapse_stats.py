@@ -35,7 +35,7 @@ def process_directory(root, photoDir):
 def print_dirStats(dirStats):
     print ('Number of files: ' + str(dirStats['numberOfFiles']) + '\n' + \
            'Duration: ' + str(dirStats['duration']) + '\n' + \
-           'Size: ' + photoUtils.utils.bytes_2_human_readable(dirStats['size']))
+           'Size: ' + photoUtils.utils.bytes_2_human_readable(dirStats['size']) + ' (Raw: ' + str(dirStats['size']) + ')')
 
 def merge_processingResults(processingResults):
     dirStats = {'numberOfFiles': 0, 'duration': timedelta(0), 'size': 0}
@@ -54,10 +54,6 @@ def main ():
     for directoryToCheck in directories:
         for photoDir in os.listdir(directoryToCheck):
             processingResults.append(process_directory(directoryToCheck, photoDir))
-##        # get the arguments for the procssing function
-##        photoDirectories = list(map(lambda photoDir: (directoryToCheck, photoDir), os.listdir(directoryToCheck)))
-##        with Pool(8) as p:
-##            processingResults.extend(p.starmap(process_directory, photoDirectories))
     end = time.time()
 
     totalDirStats = merge_processingResults(processingResults)
