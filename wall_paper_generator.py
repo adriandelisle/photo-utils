@@ -1,40 +1,9 @@
 import os
-import subprocess
 import shutil
 import time
 import random
 from multiprocessing import Pool
-
-def is_picture(fileName):
-    acceptedFileTypes = ['.jpg', '.nef']
-    for fileType in acceptedFileTypes:
-        if fileName.lower().endswith(fileType):
-            return True
-    return False
-
-def get_metadata(filePath):
-    ## http://stackoverflow.com/a/7006424
-    CREATE_NO_WINDOW = 0x08000000
-    DETACHED_PROCESS = 0x00000008
-    processResult = subprocess.run(
-        args = ['exiv2-0.25-win\exiv2', filePath],
-        creationflags=DETACHED_PROCESS,
-        universal_newlines = True,
-        stdout = subprocess.PIPE)
-    rawMetadata = processResult.stdout.split('\n');
-    metadata = {}
-    for field in rawMetadata:
-        keyValue = field.split(':')
-        if len(keyValue) == 2:
-            metadata[keyValue[0].strip()] = keyValue[1].strip()
-    return metadata
-
-def get_aspect_ratio(metadata):
-    imageSize = metadata['Image size']
-    imageSize = imageSize.split('x')
-    imageSize = (float(imageSize[0].strip()), float(imageSize[1].strip()))
-    
-    return "{:.2f}".format(imageSize[0] / imageSize[1])
+import photoUtils
 
 def copy_photo(original, aspectRatio, fileName):
     destination = 'output/' + aspectRatio + '/' + fileName
@@ -82,10 +51,10 @@ def process_directory(root, photoDir):
 
         if dirPath.lower().find("no watermark") != -1:
             for file in files:
-                if is_picture(file):
+                if photoUtils.utils.is_picture(file):
                     filePath = os.path.join(dirPath, file)
-                    metadata = get_metadata(filePath)
-                    aspectRatio = get_aspect_ratio(metadata)
+                    metadata = photoUtils.metadata.get_metadata(filePath)
+                    aspectRatio = photoUtils.metadata.get_aspect_ratio(metadata)
 
                     newFileName = photoDir + ' ' + file
                     
