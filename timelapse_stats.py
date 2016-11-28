@@ -53,8 +53,10 @@ def main ():
     start = time.time()
     processingResults = []
     for directoryToCheck in directories:
-        for photoDir in os.listdir(directoryToCheck):
-            processingResults.append(process_directory(directoryToCheck, photoDir))
+        # get the arguments for the procssing function
+        photoDirectories = list(map(lambda photoDir: (directoryToCheck, photoDir), os.listdir(directoryToCheck)))
+        with Pool(8) as p:
+            processingResults.extend(p.starmap(process_directory, photoDirectories))
     end = time.time()
 
     totalDirStats = merge_processingResults(processingResults)
