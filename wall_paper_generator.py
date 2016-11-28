@@ -3,6 +3,7 @@ import shutil
 import time
 import random
 from multiprocessing import Pool
+from datetime import datetime
 import photoUtils
 
 def copy_photo(original, aspectRatio, fileName):
@@ -80,6 +81,7 @@ def merge_processing_results(processingResults):
     return photosByAspectRatio
 
 def main ():
+    print (datetime.now())
     directories = ['P:/Pictures/Nikon D5000 Photos/Photos/', 'P:/Pictures/Nikon D5000 Photos/Timelapses/']
     #directories = ['P:/Pictures/Python Test/Photos/', 'P:/Pictures/Python Test/Timelapses/']
 

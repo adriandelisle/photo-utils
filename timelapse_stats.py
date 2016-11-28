@@ -1,7 +1,7 @@
 import os
 import time
 from multiprocessing import Pool
-from datetime import timedelta
+from datetime import datetime, timedelta
 import photoUtils
 
 def process_directory(root, photoDir):
@@ -46,6 +46,7 @@ def merge_processingResults(processingResults):
     return dirStats
 
 def main ():
+    print (datetime.now())
     directories = ['P:/Pictures/Nikon D5000 Photos/Timelapses/']
     #directories = ['P:/Pictures/Python Test/Timelapses/']
 
