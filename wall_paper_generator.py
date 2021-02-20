@@ -82,8 +82,7 @@ def merge_processing_results(processingResults):
 
 def main ():
     print (datetime.now())
-    directories = ['P:/Pictures/Nikon D5000 Photos/Photos/', 'P:/Pictures/Nikon D5000 Photos/Timelapses/']
-    #directories = ['P:/Pictures/Python Test/Photos/', 'P:/Pictures/Python Test/Timelapses/']
+    directories = ['P:/Pictures/Nikon D5000/Photos/', 'P:/Pictures/Nikon D5000/Timelapses/', 'P:/Pictures/Nikon D750/Photos/', 'P:/Pictures/Nikon D750/Timelapses/']
 
     start = time.time()
     if os.path.isdir('output'):
