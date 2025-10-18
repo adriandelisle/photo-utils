@@ -55,7 +55,7 @@ def process_directory(root, photoDir):
                 if photoUtils.utils.is_picture(file):
                     filePath = os.path.join(dirPath, file)
                     metadata = photoUtils.metadata.get_metadata(filePath)
-                    aspectRatio = photoUtils.metadata.get_aspect_ratio(metadata)
+                    aspectRatio = photoUtils.metadata.get_nearest_common_aspect_ratio(metadata)
 
                     newFileName = photoDir + ' ' + file
                     
@@ -82,7 +82,7 @@ def merge_processing_results(processingResults):
 
 def main ():
     print (datetime.now())
-    directories = ['P:/Pictures/Nikon D5000/Photos/', 'P:/Pictures/Nikon D5000/Timelapses/', 'P:/Pictures/Nikon D750/Photos/', 'P:/Pictures/Nikon D750/Timelapses/']
+    directories = [r"E:\Pictures\Test"]
 
     start = time.time()
     if os.path.isdir('output'):
