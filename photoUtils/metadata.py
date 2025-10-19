@@ -1,31 +1,112 @@
 import time
+from enum import StrEnum
 from datetime import datetime
 import pyexiv2
 
 PIXEL_HEIGHT_KEY = 'pixel_height'
 PIXEL_WIDTH_KEY = 'pixel_width'
 
+class AspectTypes(StrEnum):
+    Sqaure = 'square'
+    Landscape = 'landscape'
+    Portrait = 'portrait'
+    Panorama = 'panorama'
+    Custom = 'custom'
+
 COMMON_ASPECT_RATIOS = {
-    '1-1': 1.0,
+    '1-1': {
+        "label": "1-1",
+        "value": 1.0,
+        "type": AspectTypes.Sqaure,
+    },
     # landscape
-    '4-3': 4/3,
-    '5-4': 5/4,
-    '7-5': 7/5,
-    '3-2': 3/2,
-    '16-9': 16/9,
-    '16-10': 16/10,
+    '4-3': {
+        "label": "4-3",
+        "value": 4/3,
+        "type": AspectTypes.Landscape
+    },
+    '5-4': {
+        "label": "5-4",
+        "value": 5/4,
+        "type": AspectTypes.Landscape
+    },
+    '7-5': {
+        "label": "7-5",
+        "value": 7/5,
+        "type": AspectTypes.Landscape
+    },
+    '3-2': {
+        "label": "3-2",
+        "value": 3/2,
+        "type": AspectTypes.Landscape
+    },
+    '16-9': {
+        "label": "16-9",
+        "value": 16/9,
+        "type": AspectTypes.Landscape
+    },
+    '16-10': {
+        "label": "16-10",
+        "value": 16/10,
+        "type": AspectTypes.Landscape
+    },
     #portrait
-    '3-4': 3/4,
-    '4-5': 4/5,
-    '5-7': 5/7,
-    '2-3': 2/3,
-    '9-16': 9/16,
-    '10:16': 10/16,
+    '3-4': {
+        "label": '3-4',
+        "value": 3/4,
+        "type": AspectTypes.Portrait
+    },
+    '4-5': {
+        "label": '4-5',
+        "value": 4/5,
+        "type": AspectTypes.Portrait
+    },
+    '5-7': {
+        "label": '5-7',
+        "value": 5/7,
+        "type": AspectTypes.Portrait
+    },
+    '2-3': {
+        "label": '2-3',
+        "value": 2/3,
+        "type": AspectTypes.Portrait
+    },
+    '9-16': {
+        "label": '9-16',
+        "value": 9/16,
+        "type": AspectTypes.Portrait
+    },
+    '10-16': {
+        "label": '10-16',
+        "value": 10/16,
+        "type": AspectTypes.Portrait
+    },
     #panorama
-    '1-2': 2,
-    '1-3': 3,
-    '1-4': 4,
-    '1-5': 5,
+    '1-2': {
+        "label": '1-2',
+        "value": 1/2,
+        "type": AspectTypes.Panorama
+    },
+    '1-3': {
+        "label": '1-3',
+        "value": 1/3,
+        "type": AspectTypes.Panorama
+    },
+    '1-4': {
+        "label": '1-4',
+        "value": 1/4,
+        "type": AspectTypes.Panorama
+    },
+    '1-5': {
+        "label": '1-5',
+        "value": 1/5,
+        "type": AspectTypes.Panorama
+    },
+    '1-8': {
+        "label": '1-8',
+        "value": 1/8,
+        "type": AspectTypes.Panorama
+    },
 }
 
 # Threashold before a ratio is considered custom and not inside common ratio above
@@ -68,16 +149,20 @@ def get_nearest_common_aspect_ratio(metadata) -> str:
     aspectRatio = get_aspect_ratio(metadata)
     (commonKey, smallestDiff) = ('none', float('inf'))
 
-    for ratioKey, ratioValue in COMMON_ASPECT_RATIOS.items():
-        diff = abs(aspectRatio - ratioValue)
+    for ratioKey, ratioInfo in COMMON_ASPECT_RATIOS.items():
+        diff = abs(aspectRatio - ratioInfo["value"])
         if (diff < smallestDiff):
             smallestDiff = diff
             commonKey = ratioKey
     
     if (smallestDiff < ASPECT_RATIO_THRESHOLD):
-        return commonKey
+        return COMMON_ASPECT_RATIOS[commonKey]
     
-    return calculate_aspect_ratio(metadata[PIXEL_WIDTH_KEY], metadata[PIXEL_HEIGHT_KEY])
+    customAspectRatio = calculate_aspect_ratio(metadata[PIXEL_WIDTH_KEY], metadata[PIXEL_HEIGHT_KEY])
+    return {
+        "type": AspectTypes.Custom,
+        "label": customAspectRatio
+    }
 
 def get_created_time(metadata):
     metadataTimestamp = metadata['Image timestamp']

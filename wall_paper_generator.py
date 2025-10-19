@@ -2,16 +2,19 @@ import os
 import shutil
 import time
 import random
+from pathlib import Path
 from multiprocessing import Pool
 from datetime import datetime
 import photoUtils
 
-def copy_photo(original, aspectRatio, fileName):
-    destination = 'output/' + aspectRatio + '/' + fileName
+def copy_photo(original, aspectRatioInfo, fileName):
+    destination = 'output/' + aspectRatioInfo["type"] + '/' + aspectRatioInfo["label"] + '/' + fileName
     if os.path.isfile(destination):
         fileNameParts = fileName.split('.')
         destination = 'output/' + \
-                      aspectRatio + \
+                      aspectRatioInfo["type"] + \
+                      '/' + \
+                      aspectRatioInfo["label"] + \
                       '/' + \
                       fileNameParts[0] + \
                       ' ' + \
@@ -22,8 +25,8 @@ def copy_photo(original, aspectRatio, fileName):
     print ('\tCreating file: ' + destination)
     shutil.copy(original, destination)
 
-def create_aspect_dir(aspectRatio):
-    dirToCreate = 'output/' + aspectRatio
+def create_aspect_dir(aspectRatioInfo):
+    dirToCreate = 'output/' + aspectRatioInfo["type"] + '/' + aspectRatioInfo["label"]
     if not os.path.isdir(dirToCreate):
         print ('Creating directory: ' + dirToCreate)
         os.makedirs(dirToCreate)
@@ -53,21 +56,22 @@ def process_directory(root, photoDir):
         if dirPath.lower().find("no watermark") != -1:
             for file in files:
                 if photoUtils.utils.is_picture(file):
+                    print(dirPath)
                     filePath = os.path.join(dirPath, file)
                     metadata = photoUtils.metadata.get_metadata(filePath)
-                    aspectRatio = photoUtils.metadata.get_nearest_common_aspect_ratio(metadata)
+                    aspectRatioInfo = photoUtils.metadata.get_nearest_common_aspect_ratio(metadata)
 
                     newFileName = photoDir + ' ' + file
                     
-                    photo = (filePath, metadata, aspectRatio, newFileName)
+                    photo = (filePath, metadata, aspectRatioInfo, newFileName)
                     
-                    if aspectRatio in photosByAspectRatio:
-                        photosByAspectRatio[aspectRatio].append(photo)
+                    if aspectRatioInfo["label"] in photosByAspectRatio:
+                        photosByAspectRatio[aspectRatioInfo["label"]].append(photo)
                     else:
-                        photosByAspectRatio[aspectRatio] = [photo]
-                        create_aspect_dir(aspectRatio)
+                        photosByAspectRatio[aspectRatioInfo["label"]] = [photo]
+                        create_aspect_dir(aspectRatioInfo)
 
-                    copy_photo(filePath, aspectRatio, newFileName)
+                    copy_photo(filePath, aspectRatioInfo, newFileName)
     return photosByAspectRatio
 
 def merge_processing_results(processingResults):
@@ -92,6 +96,7 @@ def main ():
     for directoryToCheck in directories:
         # get the arguments for the procssing function
         photoDirectories = list(map(lambda photoDir: (directoryToCheck, photoDir), os.listdir(directoryToCheck)))
+        print('dirs', photoDirectories)
         with Pool(8) as p:
             processingResults.extend(p.starmap(process_directory, photoDirectories))
     end = time.time()
