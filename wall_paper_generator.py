@@ -7,11 +7,13 @@ from multiprocessing import Pool
 from datetime import datetime
 import photoUtils
 
+OUTPUT_DIR = "E:/Pictures/Wall Paper Generator/"
+
 def copy_photo(original, aspectRatioInfo, fileName):
-    destination = 'output/' + aspectRatioInfo["type"] + '/' + aspectRatioInfo["label"] + '/' + fileName
+    destination = OUTPUT_DIR + aspectRatioInfo["type"] + '/' + aspectRatioInfo["label"] + '/' + fileName
     if os.path.isfile(destination):
         fileNameParts = fileName.split('.')
-        destination = 'output/' + \
+        destination = OUTPUT_DIR + \
                       aspectRatioInfo["type"] + \
                       '/' + \
                       aspectRatioInfo["label"] + \
@@ -26,14 +28,14 @@ def copy_photo(original, aspectRatioInfo, fileName):
     shutil.copy(original, destination)
 
 def create_aspect_dir(aspectRatioInfo):
-    dirToCreate = 'output/' + aspectRatioInfo["type"] + '/' + aspectRatioInfo["label"]
+    dirToCreate = OUTPUT_DIR + aspectRatioInfo["type"] + '/' + aspectRatioInfo["label"]
     if not os.path.isdir(dirToCreate):
         print ('Creating directory: ' + dirToCreate)
         os.makedirs(dirToCreate)
 
 def clean_old_output():
     print ('Cleaning up old output directory')
-    shutil.rmtree('output')
+    shutil.rmtree(OUTPUT_DIR)
 
 def print_photos_created_stats(photosByAspectRatio):
     print ('Number of photos created:')
@@ -88,7 +90,7 @@ def main ():
     directories = [r"E:\Pictures\Test"]
 
     start = time.time()
-    if os.path.isdir('output'):
+    if os.path.isdir(OUTPUT_DIR):
         clean_old_output()
 
     processingResults = []
