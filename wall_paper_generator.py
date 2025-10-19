@@ -56,7 +56,6 @@ def process_directory(root, photoDir):
         if dirPath.lower().find("no watermark") != -1:
             for file in files:
                 if photoUtils.utils.is_picture(file):
-                    print(dirPath)
                     filePath = os.path.join(dirPath, file)
                     metadata = photoUtils.metadata.get_metadata(filePath)
                     aspectRatioInfo = photoUtils.metadata.get_nearest_common_aspect_ratio(metadata)
@@ -96,7 +95,6 @@ def main ():
     for directoryToCheck in directories:
         # get the arguments for the procssing function
         photoDirectories = list(map(lambda photoDir: (directoryToCheck, photoDir), os.listdir(directoryToCheck)))
-        print('dirs', photoDirectories)
         with Pool(8) as p:
             processingResults.extend(p.starmap(process_directory, photoDirectories))
     end = time.time()

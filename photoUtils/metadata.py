@@ -113,11 +113,15 @@ COMMON_ASPECT_RATIOS = {
 ASPECT_RATIO_THRESHOLD = 0.1
 
 def get_metadata(filePath):
-    image = pyexiv2.Image(filePath)
-    rawExifData = image.read_exif()
-    pixelHeight = image.get_pixel_height()
-    pixelWidth = image.get_pixel_width()
-    image.close()
+    # open the file manual since windows does some funky stuff with encoding
+    # https://github.com/LeoHsiao1/pyexiv2/issues/131
+    # https://github.com/LeoHsiao1/pyexiv2/blob/master/docs/Tutorial.md#class-imagedata
+    # Aéxətəm Regional Park (Colony Farm) was causing some issues
+    with open(filePath, 'rb') as file:
+        with pyexiv2.ImageData(file.read()) as image:
+            rawExifData = image.read_exif()
+            pixelHeight = image.get_pixel_height()
+            pixelWidth = image.get_pixel_width()
 
     # Extract exif data
     metadata = {}
