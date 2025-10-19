@@ -87,7 +87,7 @@ def merge_processing_results(processingResults):
 
 def main ():
     print (datetime.now())
-    directories = [r"E:\Pictures\Test"]
+    directories = [r"E:\Pictures\Exported Photos"]
 
     start = time.time()
     if os.path.isdir(OUTPUT_DIR):

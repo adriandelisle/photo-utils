@@ -7,11 +7,11 @@ PIXEL_HEIGHT_KEY = 'pixel_height'
 PIXEL_WIDTH_KEY = 'pixel_width'
 
 class AspectTypes(StrEnum):
-    Sqaure = 'square'
-    Landscape = 'landscape'
-    Portrait = 'portrait'
-    Panorama = 'panorama'
-    Custom = 'custom'
+    Sqaure = 'Square'
+    Landscape = 'Landscape'
+    Portrait = 'Portrait'
+    Panorama = 'Panorama'
+    Custom = 'Custom'
 
 COMMON_ASPECT_RATIOS = {
     '1-1': {
@@ -82,29 +82,39 @@ COMMON_ASPECT_RATIOS = {
         "type": AspectTypes.Portrait
     },
     #panorama
-    '1-2': {
-        "label": '1-2',
-        "value": 1/2,
+    '2-1': {
+        "label": '2-1',
+        "value": 2,
         "type": AspectTypes.Panorama
     },
-    '1-3': {
-        "label": '1-3',
-        "value": 1/3,
+    '3-1': {
+        "label": '3-1',
+        "value": 3,
         "type": AspectTypes.Panorama
     },
-    '1-4': {
-        "label": '1-4',
-        "value": 1/4,
+    '4-1': {
+        "label": '4-1',
+        "value": 4,
         "type": AspectTypes.Panorama
     },
-    '1-5': {
-        "label": '1-5',
-        "value": 1/5,
+    '5-1': {
+        "label": '5-1',
+        "value": 5,
         "type": AspectTypes.Panorama
     },
-    '1-8': {
-        "label": '1-8',
-        "value": 1/8,
+    '5-2': {
+        "label": '5-2',
+        "value": 5/2,
+        "type": AspectTypes.Panorama
+    },
+    '6-1': {
+        "label": '6-1',
+        "value": 6,
+        "type": AspectTypes.Panorama
+    },
+    '8-1': {
+        "label": '8-1',
+        "value": 8,
         "type": AspectTypes.Panorama
     },
 }
